@@ -649,6 +649,18 @@
       }
     },
     "CHANNEL_PREFERENCES": "Channel Preferences",
+    "EMAIL_SETTINGS": {
+      "CONVERSATION_ID_IN_SUBJECT": "Add conversation ID to email subject",
+      "INCLUDE_ORIGINAL_IN_REPLY": {
+        "LABEL": "Include original message when replying",
+        "OPTIONS": {
+          "FORCED_OFF": "Always off (agents cannot enable)",
+          "DEFAULT_OFF": "Off by default (agents can enable)",
+          "DEFAULT_ON": "On by default (agents can disable)",
+          "FORCED_ON": "Always on (agents cannot disable)"
+        }
+      }
+    },
     "WIDGET_FEATURES": "Widget features",
     "ACCOUNT_HEALTH": {
       "TITLE": "Manage your WhatsApp account",
