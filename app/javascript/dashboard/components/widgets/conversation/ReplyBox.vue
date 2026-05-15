@@ -404,7 +404,16 @@ export default {
         return false;
       }
 
-      return !!this.fetchQuotedReplyFlagFromUISettings(this.channelType);
+      const inboxSetting = this.inbox?.include_original_in_reply;
+      if (inboxSetting === 'forced_on') return true;
+      if (inboxSetting === 'forced_off') return false;
+
+      const userPref = this.fetchQuotedReplyFlagFromUISettings(
+        this.channelType
+      );
+      if (userPref !== undefined) return !!userPref;
+
+      return inboxSetting === 'default_on';
     },
     lastEmailWithQuotedContent() {
       if (!this.isAnEmailChannel) {
@@ -425,7 +434,9 @@ export default {
       return truncatePreviewText(this.quotedEmailText, 80);
     },
     shouldShowQuotedReplyToggle() {
-      return this.isAnEmailChannel && !this.isOnPrivateNote;
+      if (!this.isAnEmailChannel || this.isOnPrivateNote) return false;
+      const inboxSetting = this.inbox?.include_original_in_reply;
+      return inboxSetting !== 'forced_on' && inboxSetting !== 'forced_off';
     },
     shouldShowQuotedPreview() {
       return (

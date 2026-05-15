@@ -110,6 +110,9 @@ if resource.email?
     json.smtp_openssl_verify_mode resource.channel.try(:smtp_openssl_verify_mode)
     json.smtp_authentication resource.channel.try(:smtp_authentication)
   end
+
+  json.conversation_id_in_subject resource.channel.try(:conversation_id_in_subject)
+  json.include_original_in_reply resource.channel.try(:include_original_in_reply)
 end
 
 ## API Channel Attributes
