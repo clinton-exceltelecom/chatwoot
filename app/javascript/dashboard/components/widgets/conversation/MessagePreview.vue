@@ -1,6 +1,7 @@
 <script>
 import { MESSAGE_TYPE } from 'widget/helpers/constants';
 import { useMessageFormatter } from 'shared/composables/useMessageFormatter';
+import { useUISettings } from 'dashboard/composables/useUISettings';
 import { ATTACHMENT_ICONS } from 'shared/constants/messages';
 
 export default {
@@ -18,11 +19,17 @@ export default {
       type: String,
       default: '',
     },
+    mailSubject: {
+      type: String,
+      default: '',
+    },
   },
   setup() {
     const { getPlainText } = useMessageFormatter();
+    const { uiSettings } = useUISettings();
     return {
       getPlainText,
+      uiSettings,
     };
   },
   computed: {
@@ -39,9 +46,18 @@ export default {
       return isPrivate;
     },
     parsedLastMessage() {
-      const { content_attributes: contentAttributes } = this.message;
-      const { email: { subject } = {} } = contentAttributes || {};
-      return this.getPlainText(subject || this.message.content);
+      const messageContent = this.message.content;
+      const previewMode =
+        this.uiSettings.conversation_list_preview || 'message';
+
+      if (this.mailSubject) {
+        if (previewMode === 'subject')
+          return this.getPlainText(this.mailSubject);
+        if (previewMode === 'both')
+          return this.getPlainText(`${this.mailSubject} — ${messageContent}`);
+      }
+
+      return this.getPlainText(messageContent);
     },
     lastMessageFileType() {
       const [{ file_type: fileType } = {}] = this.message.attachments;

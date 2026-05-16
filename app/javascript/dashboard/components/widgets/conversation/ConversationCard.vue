@@ -185,6 +185,7 @@ watch(
         v-else-if="lastMessageInChat"
         key="message-preview"
         :message="lastMessageInChat"
+        :mail-subject="chat.additional_attributes?.mail_subject || ''"
         class="my-0 mx-2 leading-6 h-6 flex-1 min-w-0 text-sm"
         :class="messagePreviewClass"
       />
