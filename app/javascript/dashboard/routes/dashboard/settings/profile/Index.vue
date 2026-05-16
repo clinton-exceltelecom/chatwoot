@@ -12,6 +12,7 @@ import UserProfilePicture from './UserProfilePicture.vue';
 import UserBasicDetails from './UserBasicDetails.vue';
 import MessageSignature from './MessageSignature.vue';
 import FontSize from './FontSize.vue';
+import ConversationListPreview from './ConversationListPreview.vue';
 import UserLanguageSelect from './UserLanguageSelect.vue';
 import ChangePassword from './ChangePassword.vue';
 import NotificationPreferences from './NotificationPreferences.vue';
@@ -32,6 +33,7 @@ export default {
     MessageSignature,
     SectionLayout,
     FontSize,
+    ConversationListPreview,
     UserLanguageSelect,
     UserProfilePicture,
     Policy,
@@ -248,6 +250,7 @@ export default {
             $t('PROFILE_SETTINGS.FORM.INTERFACE_SECTION.LANGUAGE.NOTE')
           "
         />
+        <ConversationListPreview />
       </div>
     </SectionLayout>
     <SectionLayout

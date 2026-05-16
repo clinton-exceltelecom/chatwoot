@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useMessageFormatter } from 'shared/composables/useMessageFormatter';
+import { useUISettings } from 'dashboard/composables/useUISettings';
 
 import Avatar from 'dashboard/components-next/avatar/Avatar.vue';
 import CardLabels from 'dashboard/components-next/Conversation/ConversationCard/CardLabels.vue';
@@ -19,18 +20,27 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+const { uiSettings } = useUISettings();
 
 const slaCardLabelRef = ref(null);
 
 const { getPlainText } = useMessageFormatter();
 
 const lastNonActivityMessageContent = computed(() => {
-  const { lastNonActivityMessage = {}, customAttributes = {} } =
+  const { lastNonActivityMessage = {}, additionalAttributes = {} } =
     props.conversation;
-  const { email: { subject } = {} } = customAttributes;
-  return getPlainText(
-    subject || lastNonActivityMessage?.content || t('CHAT_LIST.NO_CONTENT')
-  );
+  const mailSubject = additionalAttributes?.mail_subject;
+  const messageContent =
+    lastNonActivityMessage?.content || t('CHAT_LIST.NO_CONTENT');
+  const previewMode = uiSettings.value.conversation_list_preview || 'message';
+
+  if (mailSubject) {
+    if (previewMode === 'subject') return getPlainText(mailSubject);
+    if (previewMode === 'both')
+      return getPlainText(`${mailSubject} — ${messageContent}`);
+  }
+
+  return getPlainText(messageContent);
 });
 
 const assignee = computed(() => {
