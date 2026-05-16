@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { MESSAGE_TYPE } from 'widget/helpers/constants';
 import { useMessageFormatter } from 'shared/composables/useMessageFormatter';
+import { useUISettings } from 'dashboard/composables/useUISettings';
 import Icon from 'dashboard/components-next/icon/Icon.vue';
 
 const props = defineProps({
@@ -21,9 +22,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  mailSubject: {
+    type: String,
+    default: '',
+  },
 });
 
 const { getPlainText } = useMessageFormatter();
+const { uiSettings } = useUISettings();
 
 const attachmentIcons = {
   image: 'i-lucide-image',
@@ -50,9 +56,16 @@ const isMessagePrivate = computed(() => {
 });
 
 const parsedLastMessage = computed(() => {
-  const { content_attributes: contentAttributes } = props.message;
-  const { email: { subject } = {} } = contentAttributes || {};
-  return getPlainText(subject || props.message.content);
+  const messageContent = props.message.content;
+  const previewMode = uiSettings.value.conversation_list_preview || 'message';
+
+  if (props.mailSubject) {
+    if (previewMode === 'subject') return getPlainText(props.mailSubject);
+    if (previewMode === 'both')
+      return getPlainText(`${props.mailSubject} — ${messageContent}`);
+  }
+
+  return getPlainText(messageContent);
 });
 
 const lastMessageFileType = computed(() => {
