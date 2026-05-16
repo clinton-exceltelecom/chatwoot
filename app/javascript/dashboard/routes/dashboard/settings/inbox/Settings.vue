@@ -920,18 +920,13 @@ export default {
               </template>
             </SettingsFieldSection>
 
-            <SettingsFieldSection
+            <SettingsToggleSection
               v-if="isAnEmailChannel"
-              :label="
+              v-model="conversationIdInSubject"
+              :header="
                 $t('INBOX_MGMT.EDIT.EMAIL_SETTINGS.CONVERSATION_ID_IN_SUBJECT')
               "
-            >
-              <input
-                v-model="conversationIdInSubject"
-                type="checkbox"
-                class="checkbox"
-              />
-            </SettingsFieldSection>
+            />
 
             <SettingsFieldSection
               v-if="isAnEmailChannel"
