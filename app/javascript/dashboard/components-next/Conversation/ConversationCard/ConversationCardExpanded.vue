@@ -35,6 +35,10 @@ const emit = defineEmits([
 const lastMessageInChat = computed(() => getLastMessage(props.chat));
 const showLabelsSection = computed(() => props.chat.labels?.length > 0);
 
+const mailSubject = computed(
+  () => props.chat.additional_attributes?.mail_subject || ''
+);
+
 const voiceCallData = computed(() => {
   const last = lastMessageInChat.value;
   if (last?.content_type !== 'voice_call' || !last.call) {
@@ -162,6 +166,7 @@ const selectedModel = computed({
         :voice-call-direction="voiceCallData.direction"
         :unread-count="unreadCount"
         :show-expanded-preview="false"
+        :mail-subject="mailSubject"
       />
     </div>
 
