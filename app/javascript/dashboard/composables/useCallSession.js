@@ -239,13 +239,14 @@ export function useCallSession() {
   const seedCallsFromHydratedMessages = () => {
     const conversations = store.getters.getAllConversations || [];
     const currentUserId = store.getters.getCurrentUserID;
+    const currentUserAvailability = store.getters.getCurrentUserAvailability;
     conversations.forEach(conv => {
       (conv.messages || []).forEach(msg => {
         if (msg.content_type !== 'voice_call') return;
         if (msg.call?.status !== 'ringing') return;
         const callSid = msg.call?.provider_call_id;
         if (callSid && dismissedCallSids.has(callSid)) return;
-        handleVoiceCallCreated(msg, currentUserId);
+        handleVoiceCallCreated(msg, currentUserId, currentUserAvailability);
       });
     });
   };

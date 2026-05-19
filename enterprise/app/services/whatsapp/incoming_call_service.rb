@@ -159,15 +159,22 @@ class Whatsapp::IncomingCallService
     )
   end
 
-  # Ring the assignee if assigned; otherwise account-wide so any agent can pick up.
+  # Ring the assignee if assigned; otherwise only currently-online inbox agents
+  # so offline/busy agents don't get a phantom popup. If nobody is online, fall
+  # back to account-wide so the call still reaches whoever logs in next.
   def broadcast_incoming(call, sdp_offer)
     contact = call.contact
     token = call.conversation.assignee&.pubsub_token
+    streams = token ? [token] : (online_agent_streams.presence || account_streams)
     broadcast(call, 'voice_call.incoming',
-              streams: token ? [token] : account_streams,
+              streams: streams,
               direction: call.direction_label, inbox_id: call.inbox_id,
               sdp_offer: sdp_offer, ice_servers: Call.default_ice_servers,
               caller: { name: contact.name, phone: contact.phone_number, avatar: contact.avatar_url })
+  end
+
+  def online_agent_streams
+    inbox.available_agents.pluck('users.pubsub_token').compact
   end
 
   def broadcast(call, event, streams: account_streams, **extra)

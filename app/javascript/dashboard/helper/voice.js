@@ -45,6 +45,15 @@ const shouldShowCall = ({
   return !isAssignedToAnotherAgent(assigneeId, currentUserId);
 };
 
+// Offline/busy agents shouldn't get a ringing popup for inbound calls, but
+// outbound calls always belong to the initiator regardless of their status,
+// and existing (already-surfaced) calls keep going so a status change
+// mid-call doesn't yank away an active widget.
+const shouldRingInbound = (callDirection, currentUserAvailability) => {
+  if (callDirection === 'outbound') return true;
+  return currentUserAvailability === 'online';
+};
+
 function extractCallData(message) {
   const call = message?.call || {};
   return {
@@ -60,7 +69,11 @@ function extractCallData(message) {
   };
 }
 
-export function handleVoiceCallCreated(message, currentUserId) {
+export function handleVoiceCallCreated(
+  message,
+  currentUserId,
+  currentUserAvailability
+) {
   if (!isVoiceCallMessage(message)) return;
 
   const {
@@ -85,6 +98,8 @@ export function handleVoiceCallCreated(message, currentUserId) {
     return;
   }
 
+  if (!shouldRingInbound(callDirection, currentUserAvailability)) return;
+
   const callsStore = useCallsStore();
   callsStore.addCall({
     callSid,
@@ -97,7 +112,12 @@ export function handleVoiceCallCreated(message, currentUserId) {
   });
 }
 
-export function handleVoiceCallUpdated(commit, message, currentUserId) {
+export function handleVoiceCallUpdated(
+  commit,
+  message,
+  currentUserId,
+  currentUserAvailability
+) {
   if (!isVoiceCallMessage(message)) return;
 
   const {
@@ -135,6 +155,8 @@ export function handleVoiceCallUpdated(commit, message, currentUserId) {
   }
 
   if (status === 'ringing') {
+    if (!shouldRingInbound(callDirection, currentUserAvailability)) return;
+
     callsStore.addCall({
       callSid,
       callId,
