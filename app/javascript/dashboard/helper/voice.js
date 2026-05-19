@@ -54,6 +54,20 @@ const shouldRingInbound = (callDirection, currentUserAvailability) => {
   return currentUserAvailability === 'online';
 };
 
+function extractCallerSnapshot(message) {
+  // Snapshot caller info from the message at add-time so the widget can keep
+  // rendering it after the user navigates away from a conversation list that
+  // had the conversation hydrated (and Vuex evicts it from the store).
+  const sender = message?.sender;
+  if (!sender) return null;
+  return {
+    name: sender.name,
+    phone: sender.phone_number,
+    avatar: sender.avatar || sender.thumbnail,
+    additionalAttributes: sender.additional_attributes || {},
+  };
+}
+
 function extractCallData(message) {
   const call = message?.call || {};
   return {
@@ -66,6 +80,7 @@ function extractCallData(message) {
     inboxId: message?.inbox_id ?? message?.conversation?.inbox_id,
     assigneeId: extractAssigneeId(message?.conversation),
     senderId: message?.sender?.id,
+    caller: extractCallerSnapshot(message),
   };
 }
 
@@ -109,6 +124,7 @@ export function handleVoiceCallCreated(
     inboxId,
     callDirection,
     senderId,
+    caller: extractCallerSnapshot(message),
   });
 }
 
@@ -165,6 +181,7 @@ export function handleVoiceCallUpdated(
       inboxId,
       callDirection,
       senderId,
+      caller: extractCallerSnapshot(message),
     });
   }
 }

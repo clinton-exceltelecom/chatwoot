@@ -73,12 +73,18 @@ const countryCodeToFlag = code => {
 
 const getCallInfo = call => {
   const conversation = store.getters.getConversationById(call?.conversationId);
-  const inbox = store.getters['inboxes/getInbox'](conversation?.inbox_id);
+  // Look up inbox from the call's own inboxId — the conversation can drop out
+  // of the Vuex store when the user navigates between inbox views, so going
+  // through `conversation.inbox_id` would lose the inbox name (and fall back
+  // to the literal "Customer support" string).
+  const inbox = store.getters['inboxes/getInbox'](call?.inboxId);
   const sender = conversation?.meta?.sender;
-  // Inbound WhatsApp calls stash caller info on the call record (from the cable
-  // payload) so the widget has something to show before the conversation lands.
+  // `caller` is the snapshot captured when the call first landed (from the
+  // message sender or the WhatsApp cable payload). It outlives the
+  // conversation being in the store, so prefer it for display.
   const caller = call?.caller;
-  const additional = sender?.additional_attributes || {};
+  const additional =
+    sender?.additional_attributes || caller?.additionalAttributes || {};
   const city = additional.city || '';
   const countryCode = additional.country_code || '';
   const country =
@@ -95,17 +101,17 @@ const getCallInfo = call => {
     conversation,
     inbox,
     contactName:
-      sender?.name ||
-      sender?.phone_number ||
       caller?.name ||
+      sender?.name ||
       caller?.phone ||
+      sender?.phone_number ||
       'Unknown caller',
-    phoneNumber: sender?.phone_number || caller?.phone || '',
+    phoneNumber: caller?.phone || sender?.phone_number || '',
     inboxName: inbox?.name || 'Customer support',
     location,
     countryFlag: countryCodeToFlag(countryCode),
     hasLocation: locationParts.length > 0,
-    avatar: sender?.avatar || sender?.thumbnail || caller?.avatar,
+    avatar: caller?.avatar || sender?.avatar || sender?.thumbnail,
   };
 };
 
