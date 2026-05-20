@@ -100,6 +100,7 @@ export default {
       channelWelcomeTagline: '',
       selectedFeatureFlags: [],
       replyTime: '',
+      allowedCustomAttributeKeys: [],
       selectedTabIndex: 0,
       selectedPortalSlug: '',
       showBusinessNameInput: false,
@@ -460,6 +461,8 @@ export default {
       this.channelWelcomeTagline = this.inbox.welcome_tagline || '';
       this.selectedFeatureFlags = this.inbox.selected_feature_flags || [];
       this.replyTime = this.inbox.reply_time;
+      this.allowedCustomAttributeKeys =
+        this.inbox.allowed_custom_attribute_keys || [];
       this.locktoSingleConversation = this.inbox.lock_to_single_conversation;
       this.selectedPortalSlug = this.inbox.help_center
         ? this.inbox.help_center.slug
@@ -578,7 +581,7 @@ export default {
           sender_name_type: this.senderNameType,
           business_name: this.businessName || null,
           allowed_custom_attribute_keys:
-            this.$refs.customAttributesSettings?.getAllowedKeys() || [],
+            this.allowedCustomAttributeKeys,
           channel: {
             widget_color: this.inbox.widget_color,
             website_url: this.channelWebsiteUrl,
@@ -1206,7 +1209,10 @@ export default {
               />
             </SettingsAccordion>
 
-            <CustomAttributesSettings ref="customAttributesSettings" :inbox="inbox" />
+            <CustomAttributesSettings
+              :inbox="inbox"
+              v-model="allowedCustomAttributeKeys"
+            />
 
             <div class="w-full flex justify-end items-center py-4 mt-2">
               <NextButton
