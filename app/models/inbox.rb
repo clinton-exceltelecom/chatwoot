@@ -264,6 +264,13 @@ class Inbox < ApplicationRecord
   def check_channel_type?
     ['Channel::Email', 'Channel::Api', 'Channel::WebWidget'].include?(channel_type)
   end
+
+  def allowed_custom_attribute_definitions
+    definitions = account.custom_attribute_definitions.where(attribute_model: :conversation_attribute)
+    return definitions if allowed_custom_attribute_keys.blank?
+
+    definitions.where(attribute_key: allowed_custom_attribute_keys)
+  end
 end
 
 Inbox.prepend_mod_with('Inbox')
