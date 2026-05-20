@@ -12,7 +12,7 @@ const store = useStore();
 const getters = useStoreGetters();
 const { t } = useI18n();
 
-const showAllAttributes = ref(true);
+const limitAttributes = ref(false);
 const selectedKeys = ref([]);
 
 const conversationAttributes = computed(() =>
@@ -22,7 +22,7 @@ const conversationAttributes = computed(() =>
 onMounted(() => {
   store.dispatch('attributes/get');
   const keys = props.inbox.allowed_custom_attribute_keys || [];
-  showAllAttributes.value = keys.length === 0;
+  limitAttributes.value = keys.length > 0;
   selectedKeys.value = [...keys];
 });
 
@@ -36,16 +36,16 @@ function toggleAttribute(key) {
   save();
 }
 
-function onToggleAll(value) {
-  showAllAttributes.value = value;
-  if (value) {
+function onToggleLimit(value) {
+  limitAttributes.value = value;
+  if (!value) {
     selectedKeys.value = [];
     save();
   }
 }
 
 async function save() {
-  const keys = showAllAttributes.value ? [] : selectedKeys.value;
+  const keys = limitAttributes.value ? selectedKeys.value : [];
   await store.dispatch('inboxes/updateInbox', {
     id: props.inbox.id,
     allowed_custom_attribute_keys: keys,
@@ -61,10 +61,10 @@ async function save() {
     <SettingsToggleSection
       :label="t('INBOX_MGMT.CUSTOM_ATTRIBUTES.TITLE')"
       :description="t('INBOX_MGMT.CUSTOM_ATTRIBUTES.DESCRIPTION')"
-      :value="showAllAttributes"
-      @input="onToggleAll"
+      :value="limitAttributes"
+      @input="onToggleLimit"
     />
-    <div v-if="!showAllAttributes" class="mt-4 ml-1">
+    <div v-if="limitAttributes" class="mt-4 ml-1">
       <p class="text-sm text-n-slate-11 mb-2">
         {{ t('INBOX_MGMT.CUSTOM_ATTRIBUTES.SELECT_ATTRIBUTES') }}
       </p>
