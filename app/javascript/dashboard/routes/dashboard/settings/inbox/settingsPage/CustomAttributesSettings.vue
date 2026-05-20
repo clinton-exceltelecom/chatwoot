@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useStore, useStoreGetters } from 'dashboard/composables/store';
 import { useI18n } from 'vue-i18n';
 import SettingsToggleSection from 'dashboard/components-next/Settings/SettingsToggleSection.vue';
@@ -22,12 +22,17 @@ const conversationAttributes = computed(() =>
   getters['attributes/getAttributesByModel'].value('conversation_attribute')
 );
 
-onMounted(() => {
-  store.dispatch('attributes/get');
-  const keys = props.modelValue || [];
-  limitAttributes.value = keys.length > 0;
-  selectedKeys.value = [...keys];
-});
+// Initialize and watch for parent value changes
+watch(
+  () => props.modelValue,
+  (keys) => {
+    limitAttributes.value = keys && keys.length > 0;
+    selectedKeys.value = [...(keys || [])];
+  },
+  { immediate: true }
+);
+
+store.dispatch('attributes/get');
 
 function toggleAttribute(key) {
   const idx = selectedKeys.value.indexOf(key);
@@ -36,15 +41,14 @@ function toggleAttribute(key) {
   } else {
     selectedKeys.value.splice(idx, 1);
   }
-  emitValue();
+  emit('update:modelValue', [...selectedKeys.value]);
 }
 
-function emitValue() {
-  emit('update:modelValue', limitAttributes.value ? [...selectedKeys.value] : []);
-}
-
-watch(limitAttributes, () => {
-  emitValue();
+watch(limitAttributes, (newVal) => {
+  if (!newVal) {
+    selectedKeys.value = [];
+    emit('update:modelValue', []);
+  }
 });
 </script>
 
