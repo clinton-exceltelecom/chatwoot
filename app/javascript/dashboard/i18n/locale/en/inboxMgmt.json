@@ -1204,7 +1204,8 @@
       "SELECT_ATTRIBUTES": "Select which attributes to show for conversations in this inbox:",
       "SAVE_BUTTON": "Save attribute settings",
       "SAVE_SUCCESS": "Custom attribute settings saved successfully.",
-      "SAVE_ERROR": "Failed to save custom attribute settings."
+      "SAVE_ERROR": "Failed to save custom attribute settings.",
+      "SECTION_TITLE": "Custom Attributes"
     }
   }
 }
