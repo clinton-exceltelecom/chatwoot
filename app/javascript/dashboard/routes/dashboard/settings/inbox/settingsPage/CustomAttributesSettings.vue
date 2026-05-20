@@ -1,10 +1,8 @@
 <script setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { useStore, useStoreGetters } from 'dashboard/composables/store';
-import { useAlert } from 'dashboard/composables';
 import { useI18n } from 'vue-i18n';
 import SettingsToggleSection from 'dashboard/components-next/Settings/SettingsToggleSection.vue';
-import NextButton from 'dashboard/components-next/button/Button.vue';
 
 const props = defineProps({
   inbox: { type: Object, default: () => ({}) },
@@ -35,29 +33,36 @@ function toggleAttribute(key) {
   } else {
     selectedKeys.value.splice(idx, 1);
   }
+  save();
+}
+
+function onToggleAll(value) {
+  showAllAttributes.value = value;
+  if (value) {
+    selectedKeys.value = [];
+    save();
+  }
 }
 
 async function save() {
   const keys = showAllAttributes.value ? [] : selectedKeys.value;
-  try {
-    await store.dispatch('inboxes/updateInbox', {
-      id: props.inbox.id,
-      allowed_custom_attribute_keys: keys,
-    });
-    useAlert(t('INBOX_MGMT.CUSTOM_ATTRIBUTES.SAVE_SUCCESS'));
-  } catch {
-    useAlert(t('INBOX_MGMT.CUSTOM_ATTRIBUTES.SAVE_ERROR'));
-  }
+  await store.dispatch('inboxes/updateInbox', {
+    id: props.inbox.id,
+    allowed_custom_attribute_keys: keys,
+  });
 }
 </script>
 
 <template>
-  <div class="max-w-4xl">
+  <div class="mt-6">
+    <h4 class="text-heading-4 text-n-slate-12 mb-2">
+      {{ t('INBOX_MGMT.CUSTOM_ATTRIBUTES.SECTION_TITLE') }}
+    </h4>
     <SettingsToggleSection
       :label="t('INBOX_MGMT.CUSTOM_ATTRIBUTES.TITLE')"
       :description="t('INBOX_MGMT.CUSTOM_ATTRIBUTES.DESCRIPTION')"
       :value="showAllAttributes"
-      @input="showAllAttributes = $event"
+      @input="onToggleAll"
     />
     <div v-if="!showAllAttributes" class="mt-4 ml-1">
       <p class="text-sm text-n-slate-11 mb-2">
@@ -77,11 +82,6 @@ async function save() {
           {{ attr.attribute_display_name }}
         </label>
       </div>
-    </div>
-    <div class="mt-4">
-      <NextButton @click="save">
-        {{ t('INBOX_MGMT.CUSTOM_ATTRIBUTES.SAVE_BUTTON') }}
-      </NextButton>
     </div>
   </div>
 </template>
