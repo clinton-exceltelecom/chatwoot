@@ -1,12 +1,15 @@
 <script setup>
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { useStore, useStoreGetters } from 'dashboard/composables/store';
 import { useI18n } from 'vue-i18n';
 import SettingsToggleSection from 'dashboard/components-next/Settings/SettingsToggleSection.vue';
 
 const props = defineProps({
   inbox: { type: Object, default: () => ({}) },
+  modelValue: { type: Array, default: () => [] },
 });
+
+const emit = defineEmits(['update:modelValue']);
 
 const store = useStore();
 const getters = useStoreGetters();
@@ -21,7 +24,7 @@ const conversationAttributes = computed(() =>
 
 onMounted(() => {
   store.dispatch('attributes/get');
-  const keys = props.inbox.allowed_custom_attribute_keys || [];
+  const keys = props.modelValue || [];
   limitAttributes.value = keys.length > 0;
   selectedKeys.value = [...keys];
 });
@@ -33,12 +36,15 @@ function toggleAttribute(key) {
   } else {
     selectedKeys.value.splice(idx, 1);
   }
+  emitValue();
 }
 
-defineExpose({
-  getAllowedKeys() {
-    return limitAttributes.value ? selectedKeys.value : [];
-  },
+function emitValue() {
+  emit('update:modelValue', limitAttributes.value ? [...selectedKeys.value] : []);
+}
+
+watch(limitAttributes, () => {
+  emitValue();
 });
 </script>
 
