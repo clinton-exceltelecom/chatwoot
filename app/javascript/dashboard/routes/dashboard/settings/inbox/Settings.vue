@@ -1204,6 +1204,8 @@ export default {
               />
             </SettingsAccordion>
 
+            <CustomAttributesSettings :inbox="inbox" />
+
             <div class="w-full flex justify-end items-center py-4 mt-2">
               <NextButton
                 v-if="isAPIInbox"
@@ -1257,7 +1259,6 @@ export default {
           :class="isAWebWidgetInbox ? 'max-w-7xl' : 'max-w-4xl'"
         >
           <ConfigurationPage :inbox="inbox" />
-          <CustomAttributesSettings :inbox="inbox" />
         </div>
         <div
           v-if="selectedTabKey === 'voice-configuration'"
