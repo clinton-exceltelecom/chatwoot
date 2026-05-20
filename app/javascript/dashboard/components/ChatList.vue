@@ -733,8 +733,11 @@ function handleResolveConversation(conversationId, status, snoozedUntil) {
   // Check for required attributes before resolving
   const conversation = getConversationById.value(conversationId);
   const currentCustomAttributes = conversation?.custom_attributes || {};
+  const inbox = store.getters['inboxes/getInbox'](conversation?.inbox_id);
+  const inboxAllowedKeys = inbox?.allowed_custom_attribute_keys || null;
   const { hasMissing, missing } = checkMissingAttributes(
-    currentCustomAttributes
+    currentCustomAttributes,
+    inboxAllowedKeys
   );
 
   if (hasMissing) {
