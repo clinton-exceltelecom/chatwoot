@@ -1199,8 +1199,8 @@
       "VOICE": "Voice"
     },
     "CUSTOM_ATTRIBUTES": {
-      "TITLE": "Show all conversation attributes",
-      "DESCRIPTION": "When enabled, all conversation custom attributes will be displayed. Disable to select specific attributes for this inbox.",
+      "TITLE": "Limit conversation attributes",
+      "DESCRIPTION": "When enabled, only selected attributes will be shown for conversations in this inbox.",
       "SELECT_ATTRIBUTES": "Select which attributes to show for conversations in this inbox:",
       "SAVE_BUTTON": "Save attribute settings",
       "SAVE_SUCCESS": "Custom attribute settings saved successfully.",
