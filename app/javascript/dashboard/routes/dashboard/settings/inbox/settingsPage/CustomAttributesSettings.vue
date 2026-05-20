@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted, watch } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useStore, useStoreGetters } from 'dashboard/composables/store';
 import { useI18n } from 'vue-i18n';
 import SettingsToggleSection from 'dashboard/components-next/Settings/SettingsToggleSection.vue';
@@ -26,13 +26,6 @@ onMounted(() => {
   selectedKeys.value = [...keys];
 });
 
-watch(limitAttributes, (newVal) => {
-  if (!newVal) {
-    selectedKeys.value = [];
-    save();
-  }
-});
-
 function toggleAttribute(key) {
   const idx = selectedKeys.value.indexOf(key);
   if (idx === -1) {
@@ -40,17 +33,13 @@ function toggleAttribute(key) {
   } else {
     selectedKeys.value.splice(idx, 1);
   }
-  save();
 }
 
-
-async function save() {
-  const keys = limitAttributes.value ? selectedKeys.value : [];
-  await store.dispatch('inboxes/updateInbox', {
-    id: props.inbox.id,
-    allowed_custom_attribute_keys: keys,
-  });
-}
+defineExpose({
+  getAllowedKeys() {
+    return limitAttributes.value ? selectedKeys.value : [];
+  },
+});
 </script>
 
 <template>

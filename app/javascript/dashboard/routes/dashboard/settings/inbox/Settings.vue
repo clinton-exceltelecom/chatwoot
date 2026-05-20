@@ -595,6 +595,8 @@ export default {
           lock_to_single_conversation: this.locktoSingleConversation,
           sender_name_type: this.senderNameType,
           business_name: this.businessName || null,
+          allowed_custom_attribute_keys:
+            this.$refs.customAttributesSettings?.getAllowedKeys() || [],
           channel: {
             widget_color: this.inbox.widget_color,
             website_url: this.channelWebsiteUrl,
@@ -1222,7 +1224,7 @@ export default {
               />
             </SettingsAccordion>
 
-            <CustomAttributesSettings :inbox="inbox" />
+            <CustomAttributesSettings ref="customAttributesSettings" :inbox="inbox" />
 
             <div class="w-full flex justify-end items-center py-4 mt-2">
               <NextButton
