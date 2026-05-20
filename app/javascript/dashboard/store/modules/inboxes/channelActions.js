@@ -7,7 +7,18 @@ export const buildInboxData = inboxParams => {
   const formData = new FormData();
   const { channel = {}, ...inboxProperties } = inboxParams;
   Object.keys(inboxProperties).forEach(key => {
-    formData.append(key, inboxProperties[key]);
+    if (key === 'allowed_custom_attribute_keys') {
+      const keys = inboxProperties[key] || [];
+      if (keys.length) {
+        keys.forEach(attrKey => {
+          formData.append('allowed_custom_attribute_keys[]', attrKey);
+        });
+      } else {
+        formData.append('allowed_custom_attribute_keys[]', '');
+      }
+    } else {
+      formData.append(key, inboxProperties[key]);
+    }
   });
   const { selectedFeatureFlags, ...channelParams } = channel;
   // selectedFeatureFlags needs to be empty when creating a website channel
