@@ -26,6 +26,13 @@ onMounted(() => {
   selectedKeys.value = [...keys];
 });
 
+watch(limitAttributes, (newVal) => {
+  if (!newVal) {
+    selectedKeys.value = [];
+    save();
+  }
+});
+
 function toggleAttribute(key) {
   const idx = selectedKeys.value.indexOf(key);
   if (idx === -1) {
@@ -36,13 +43,6 @@ function toggleAttribute(key) {
   save();
 }
 
-function onToggleLimit(value) {
-  limitAttributes.value = value;
-  if (!value) {
-    selectedKeys.value = [];
-    save();
-  }
-}
 
 async function save() {
   const keys = limitAttributes.value ? selectedKeys.value : [];
@@ -59,10 +59,9 @@ async function save() {
       {{ t('INBOX_MGMT.CUSTOM_ATTRIBUTES.SECTION_TITLE') }}
     </h4>
     <SettingsToggleSection
+      v-model="limitAttributes"
       :label="t('INBOX_MGMT.CUSTOM_ATTRIBUTES.TITLE')"
       :description="t('INBOX_MGMT.CUSTOM_ATTRIBUTES.DESCRIPTION')"
-      :value="limitAttributes"
-      @input="onToggleLimit"
     />
     <div v-if="limitAttributes" class="mt-4 ml-1">
       <p class="text-sm text-n-slate-11 mb-2">
