@@ -119,8 +119,11 @@ const onCmdOpenConversation = () => {
 
 const onCmdResolveConversation = () => {
   const currentCustomAttributes = currentChat.value.custom_attributes || {};
+  const inbox = getters['inboxes/getInbox'].value(currentChat.value.inbox_id);
+  const inboxAllowedKeys = inbox?.allowed_custom_attribute_keys || null;
   const { hasMissing, missing } = checkMissingAttributes(
-    currentCustomAttributes
+    currentCustomAttributes,
+    inboxAllowedKeys
   );
 
   if (hasMissing) {
