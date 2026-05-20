@@ -25,6 +25,7 @@ import VoiceConfigurationPage from './settingsPage/VoiceConfigurationPage.vue';
 import CustomerSatisfactionPage from './settingsPage/CustomerSatisfactionPage.vue';
 import CollaboratorsPage from './settingsPage/CollaboratorsPage.vue';
 import BotConfiguration from './components/BotConfiguration.vue';
+import CustomAttributesSettings from './settingsPage/CustomAttributesSettings.vue';
 import AccountHealth from './components/AccountHealth.vue';
 import { FEATURE_FLAGS } from '../../../../featureFlags';
 import SenderNameExamplePreview from './components/SenderNameExamplePreview.vue';
@@ -47,6 +48,7 @@ export default {
     BotConfiguration,
     CollaboratorsPage,
     ConfigurationPage,
+    CustomAttributesSettings,
     VoiceConfigurationPage,
     CustomerSatisfactionPage,
     FacebookReauthorize,
@@ -1255,6 +1257,7 @@ export default {
           :class="isAWebWidgetInbox ? 'max-w-7xl' : 'max-w-4xl'"
         >
           <ConfigurationPage :inbox="inbox" />
+          <CustomAttributesSettings :inbox="inbox" />
         </div>
         <div
           v-if="selectedTabKey === 'voice-configuration'"
