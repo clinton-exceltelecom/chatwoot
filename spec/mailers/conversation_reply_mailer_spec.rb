@@ -260,10 +260,11 @@ RSpec.describe ConversationReplyMailer do
           end
         end
 
-        it 'uses outgoing_content for CSAT message body' do
+        it 'renders inline CSAT rating icons for CSAT message' do
           with_modified_env 'FRONTEND_URL' => 'https://app.chatwoot.com' do
             mail = described_class.email_reply(csat_message).deliver_now
-            expect(mail.decoded).to include csat_message.outgoing_content
+            expect(mail.decoded).to include "survey/responses/#{conversation.uuid}#rating-1"
+            expect(mail.decoded).to include "survey/responses/#{conversation.uuid}#rating-5"
           end
         end
       end

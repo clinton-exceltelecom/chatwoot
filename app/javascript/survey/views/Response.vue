@@ -87,7 +87,11 @@ export default {
     },
   },
   async mounted() {
-    this.getSurveyDetails();
+    await this.getSurveyDetails();
+    const match = window.location.hash.match(/^#rating-([1-5])$/);
+    if (match && !this.isRatingSubmitted) {
+      this.selectRating(parseInt(match[1], 10));
+    }
   },
   methods: {
     selectRating(rating) {

@@ -1,0 +1,17 @@
+<% survey_url = "#{ENV.fetch('FRONTEND_URL', '')}/survey/responses/#{message.conversation.uuid}" %>
+<% display_type = message.content_attributes&.dig('display_type') || 'emoji' %>
+<p><%= message.content %></p>
+<p style="font-size: 28px; line-height: 1.8;">
+  <% if display_type == 'star' %>
+    <% (1..5).each do |value| %>
+      <a href="<%= survey_url %>#rating-<%= value %>" style="text-decoration:none;" target="_blank">⭐</a>
+    <% end %>
+  <% else %>
+    <% [[1,'😞'],[2,'😑'],[3,'😐'],[4,'😀'],[5,'😍']].each do |value, emoji| %>
+      <a href="<%= survey_url %>#rating-<%= value %>" style="text-decoration:none;" target="_blank"><%= emoji %></a>
+    <% end %>
+  <% end %>
+</p>
+<p style="font-size: 12px; color: #666;">
+  <a href="<%= survey_url %>" target="_blank">Rate this conversation</a>
+</p>
