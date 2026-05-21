@@ -1,6 +1,8 @@
 <% @messages.each do |message| %>
   <p style="font-family: Roboto,"Helvetica Neue",Tahoma,Arial,sans-serif; text-align: start; unicode-bidi: plaintext;">
-    <% if message.content %>
+    <% if message.content_type == 'input_csat' && message.message_type == 'template' %>
+      <%= render partial: 'mailers/conversation_reply_mailer/csat_rating', locals: { message: message } %>
+    <% elsif message.content %>
       <%= ChatwootMarkdownRenderer.new(message.content).render_message %>
     <% end %>
     <% if message.attachments.present? %>
