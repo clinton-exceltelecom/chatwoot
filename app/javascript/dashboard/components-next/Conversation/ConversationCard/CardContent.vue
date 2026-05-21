@@ -10,6 +10,7 @@ defineProps({
   voiceCallDirection: { type: String, default: '' },
   unreadCount: { type: Number, default: 0 },
   showExpandedPreview: { type: Boolean, default: false },
+  mailSubject: { type: String, default: '' },
 });
 </script>
 
@@ -30,6 +31,7 @@ defineProps({
       key="message-preview"
       :message="lastMessage"
       :multi-line="showExpandedPreview"
+      :mail-subject="mailSubject"
       :class="unreadCount > 0 ? 'text-n-slate-12' : 'text-n-slate-11'"
     />
     <span

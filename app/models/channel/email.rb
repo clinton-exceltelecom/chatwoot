@@ -50,7 +50,10 @@ class Channel::Email < ApplicationRecord
   self.table_name = 'channel_email'
   EDITABLE_ATTRS = [:email, :imap_enabled, :imap_login, :imap_password, :imap_address, :imap_port, :imap_enable_ssl, :imap_authentication,
                     :smtp_enabled, :smtp_login, :smtp_password, :smtp_address, :smtp_port, :smtp_domain, :smtp_enable_starttls_auto,
-                    :smtp_enable_ssl_tls, :smtp_openssl_verify_mode, :smtp_authentication, :provider, :verified_for_sending].freeze
+                    :smtp_enable_ssl_tls, :smtp_openssl_verify_mode, :smtp_authentication, :provider, :verified_for_sending,
+                    :conversation_id_in_subject, :include_original_in_reply].freeze
+
+  enum include_original_in_reply: { forced_off: 0, default_off: 1, default_on: 2, forced_on: 3 }
 
   validates :email, uniqueness: true
   validates :forward_to_email, uniqueness: true

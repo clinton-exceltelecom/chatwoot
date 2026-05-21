@@ -91,6 +91,8 @@ export default {
       locktoSingleConversation: false,
       allowMessagesAfterResolved: true,
       continuityViaEmail: true,
+      conversationIdInSubject: false,
+      includeOriginalInReply: 'default_on',
       selectedInboxName: '',
       channelWebsiteUrl: '',
       webhookUrl: '',
@@ -453,6 +455,10 @@ export default {
       this.allowMessagesAfterResolved =
         this.inbox.allow_messages_after_resolved;
       this.continuityViaEmail = this.inbox.continuity_via_email;
+      this.conversationIdInSubject =
+        this.inbox.conversation_id_in_subject || false;
+      this.includeOriginalInReply =
+        this.inbox.include_original_in_reply || 'default_on';
       this.channelWebsiteUrl = this.inbox.website_url;
       this.channelWelcomeTitle = this.inbox.welcome_title;
       this.channelWelcomeTagline = this.inbox.welcome_tagline || '';
@@ -585,6 +591,8 @@ export default {
             reply_time: this.replyTime || 'in_a_few_minutes',
             continuity_via_email:
               this.isInboundEmailEnabled && this.continuityViaEmail,
+            conversation_id_in_subject: this.conversationIdInSubject,
+            include_original_in_reply: this.includeOriginalInReply,
           },
         };
         if (this.avatarFile) {
@@ -910,6 +918,54 @@ export default {
                   @update="toggleSenderNameType"
                 />
               </template>
+            </SettingsFieldSection>
+
+            <SettingsToggleSection
+              v-if="isAnEmailChannel"
+              v-model="conversationIdInSubject"
+              :header="
+                $t('INBOX_MGMT.EDIT.EMAIL_SETTINGS.CONVERSATION_ID_IN_SUBJECT')
+              "
+            />
+
+            <SettingsFieldSection
+              v-if="isAnEmailChannel"
+              :label="
+                $t(
+                  'INBOX_MGMT.EDIT.EMAIL_SETTINGS.INCLUDE_ORIGINAL_IN_REPLY.LABEL'
+                )
+              "
+            >
+              <select v-model="includeOriginalInReply" class="mb-0">
+                <option value="forced_off">
+                  {{
+                    $t(
+                      'INBOX_MGMT.EDIT.EMAIL_SETTINGS.INCLUDE_ORIGINAL_IN_REPLY.OPTIONS.FORCED_OFF'
+                    )
+                  }}
+                </option>
+                <option value="default_off">
+                  {{
+                    $t(
+                      'INBOX_MGMT.EDIT.EMAIL_SETTINGS.INCLUDE_ORIGINAL_IN_REPLY.OPTIONS.DEFAULT_OFF'
+                    )
+                  }}
+                </option>
+                <option value="default_on">
+                  {{
+                    $t(
+                      'INBOX_MGMT.EDIT.EMAIL_SETTINGS.INCLUDE_ORIGINAL_IN_REPLY.OPTIONS.DEFAULT_ON'
+                    )
+                  }}
+                </option>
+                <option value="forced_on">
+                  {{
+                    $t(
+                      'INBOX_MGMT.EDIT.EMAIL_SETTINGS.INCLUDE_ORIGINAL_IN_REPLY.OPTIONS.FORCED_ON'
+                    )
+                  }}
+                </option>
+              </select>
             </SettingsFieldSection>
 
             <SettingsAccordion

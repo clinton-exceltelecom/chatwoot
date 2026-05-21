@@ -58,6 +58,15 @@
           "UPDATE_SUCCESS": "Your Language settings have been updated successfully",
           "UPDATE_ERROR": "There is an error while updating the language settings, please try again",
           "USE_ACCOUNT_DEFAULT": "Use account default"
+        },
+        "CONVERSATION_LIST_PREVIEW": {
+          "TITLE": "Conversation list preview",
+          "NOTE": "Choose what to display in the conversation list for email conversations.",
+          "OPTIONS": {
+            "MESSAGE": "Latest message",
+            "SUBJECT": "Subject (when available)",
+            "BOTH": "Subject and latest message"
+          }
         }
       },
       "MESSAGE_SIGNATURE_SECTION": {

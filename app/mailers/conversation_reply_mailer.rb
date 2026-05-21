@@ -117,10 +117,12 @@ class ConversationReplyMailer < ApplicationMailer
     return "[##{@conversation.display_id}] #{I18n.t('conversations.reply.email_subject')}" if subject.nil?
 
     chat_count = @conversation.messages.chat.count
-    if chat_count > 1
-      "Re: #{subject}"
+    base_subject = chat_count > 1 ? "Re: #{subject}" : subject
+
+    if @channel.try(:conversation_id_in_subject)
+      "[##{@conversation.display_id}] #{base_subject}"
     else
-      subject
+      base_subject
     end
   end
 
