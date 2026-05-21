@@ -25,6 +25,7 @@ import VoiceConfigurationPage from './settingsPage/VoiceConfigurationPage.vue';
 import CustomerSatisfactionPage from './settingsPage/CustomerSatisfactionPage.vue';
 import CollaboratorsPage from './settingsPage/CollaboratorsPage.vue';
 import BotConfiguration from './components/BotConfiguration.vue';
+import CustomAttributesSettings from './settingsPage/CustomAttributesSettings.vue';
 import AccountHealth from './components/AccountHealth.vue';
 import { FEATURE_FLAGS } from '../../../../featureFlags';
 import SenderNameExamplePreview from './components/SenderNameExamplePreview.vue';
@@ -47,6 +48,7 @@ export default {
     BotConfiguration,
     CollaboratorsPage,
     ConfigurationPage,
+    CustomAttributesSettings,
     VoiceConfigurationPage,
     CustomerSatisfactionPage,
     FacebookReauthorize,
@@ -100,6 +102,7 @@ export default {
       channelWelcomeTagline: '',
       selectedFeatureFlags: [],
       replyTime: '',
+      allowedCustomAttributeKeys: [],
       selectedTabIndex: 0,
       selectedPortalSlug: '',
       showBusinessNameInput: false,
@@ -464,6 +467,8 @@ export default {
       this.channelWelcomeTagline = this.inbox.welcome_tagline || '';
       this.selectedFeatureFlags = this.inbox.selected_feature_flags || [];
       this.replyTime = this.inbox.reply_time;
+      this.allowedCustomAttributeKeys =
+        this.inbox.allowed_custom_attribute_keys || [];
       this.locktoSingleConversation = this.inbox.lock_to_single_conversation;
       this.selectedPortalSlug = this.inbox.help_center
         ? this.inbox.help_center.slug
@@ -581,6 +586,8 @@ export default {
           lock_to_single_conversation: this.locktoSingleConversation,
           sender_name_type: this.senderNameType,
           business_name: this.businessName || null,
+          allowed_custom_attribute_keys:
+            this.allowedCustomAttributeKeys,
           channel: {
             widget_color: this.inbox.widget_color,
             website_url: this.channelWebsiteUrl,
@@ -1257,6 +1264,11 @@ export default {
                 "
               />
             </SettingsAccordion>
+
+            <CustomAttributesSettings
+              :inbox="inbox"
+              v-model="allowedCustomAttributeKeys"
+            />
 
             <div class="w-full flex justify-end items-center py-4 mt-2">
               <NextButton

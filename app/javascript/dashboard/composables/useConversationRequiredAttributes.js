@@ -60,16 +60,32 @@ export function useConversationRequiredAttributes() {
    * Check if a conversation is missing any required attributes
    *
    * @param {Object} conversationCustomAttributes - Current conversation's custom attributes
+   * @param {Array|null} inboxAllowedKeys - If set, only enforce attributes allowed by the inbox
    * @returns {Object} - Analysis result with missing attributes info
    */
-  const checkMissingAttributes = (conversationCustomAttributes = {}) => {
+  const checkMissingAttributes = (
+    conversationCustomAttributes = {},
+    inboxAllowedKeys = null
+  ) => {
     // If no attributes are required, conversation can be resolved
     if (!requiredAttributes.value.length) {
       return { hasMissing: false, missing: [] };
     }
 
+    // Filter required attributes to only those allowed by the inbox
+    const applicableAttributes =
+      inboxAllowedKeys && inboxAllowedKeys.length
+        ? requiredAttributes.value.filter(attr =>
+            inboxAllowedKeys.includes(attr.value)
+          )
+        : requiredAttributes.value;
+
+    if (!applicableAttributes.length) {
+      return { hasMissing: false, missing: [] };
+    }
+
     // Find attributes that are missing or empty
-    const missing = requiredAttributes.value.filter(attribute => {
+    const missing = applicableAttributes.filter(attribute => {
       const value = conversationCustomAttributes[attribute.value];
 
       // For checkbox/boolean attributes, only check if the key exists
@@ -85,7 +101,7 @@ export function useConversationRequiredAttributes() {
     return {
       hasMissing: missing.length > 0,
       missing,
-      all: requiredAttributes.value,
+      all: applicableAttributes,
     };
   };
 

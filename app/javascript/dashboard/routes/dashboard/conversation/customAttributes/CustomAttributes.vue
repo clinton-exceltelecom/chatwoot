@@ -44,9 +44,21 @@ const dragging = ref(false);
 const [showAllAttributes, toggleShowAllAttributes] = useToggle(false);
 
 const currentChat = computed(() => getters.getSelectedChat.value);
-const attributes = computed(() =>
+const allAttributes = computed(() =>
   getters['attributes/getAttributesByModel'].value(props.attributeType)
 );
+
+const currentInbox = computed(() =>
+  getters['inboxes/getInbox'].value(currentChat.value.inbox_id)
+);
+
+const attributes = computed(() => {
+  const allowedKeys = currentInbox.value?.allowed_custom_attribute_keys;
+  if (!allowedKeys || allowedKeys.length === 0) return allAttributes.value;
+  return allAttributes.value.filter(attr =>
+    allowedKeys.includes(attr.attribute_key)
+  );
+});
 
 const contactIdentifier = computed(
   () =>

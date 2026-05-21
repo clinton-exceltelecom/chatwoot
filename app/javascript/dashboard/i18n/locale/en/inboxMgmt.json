@@ -1178,6 +1178,15 @@
       "INSTAGRAM": "Instagram",
       "TIKTOK": "TikTok",
       "VOICE": "Voice"
+    },
+    "CUSTOM_ATTRIBUTES": {
+      "TITLE": "Limit conversation attributes",
+      "DESCRIPTION": "When enabled, only selected attributes will be shown for conversations in this inbox.",
+      "SELECT_ATTRIBUTES": "Select which attributes to show for conversations in this inbox:",
+      "SAVE_BUTTON": "Save attribute settings",
+      "SAVE_SUCCESS": "Custom attribute settings saved successfully.",
+      "SAVE_ERROR": "Failed to save custom attribute settings.",
+      "SECTION_TITLE": "Custom Attributes"
     }
   }
 }

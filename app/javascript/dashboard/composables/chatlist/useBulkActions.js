@@ -158,8 +158,11 @@ export function useBulkActions() {
         (acc, id) => {
           const conversation = store.getters.getConversationById(id);
           const currentCustomAttributes = conversation?.custom_attributes || {};
+          const inbox = store.getters['inboxes/getInbox'](conversation?.inbox_id);
+          const inboxAllowedKeys = inbox?.allowed_custom_attribute_keys || null;
           const { hasMissing } = checkMissingAttributes(
-            currentCustomAttributes
+            currentCustomAttributes,
+            inboxAllowedKeys
           );
 
           if (!hasMissing) {
