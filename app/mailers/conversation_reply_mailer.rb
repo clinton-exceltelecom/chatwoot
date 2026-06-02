@@ -113,7 +113,7 @@ class ConversationReplyMailer < ApplicationMailer
   end
 
   def mail_subject
-    subject = @conversation.additional_attributes['mail_subject']
+    subject = @conversation.display_title
     return "[##{@conversation.display_id}] #{I18n.t('conversations.reply.email_subject')}" if subject.nil?
 
     chat_count = @conversation.messages.chat.count
