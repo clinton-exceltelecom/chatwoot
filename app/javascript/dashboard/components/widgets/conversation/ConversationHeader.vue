@@ -38,6 +38,39 @@ const { isAWebWidgetInbox } = useInbox();
 const currentChat = computed(() => store.getters.getSelectedChat);
 const accountId = computed(() => store.getters.getCurrentAccountId);
 
+const isEditingTitle = ref(false);
+const editedTitle = ref('');
+
+const conversationTitle = computed(() => props.chat.title || '');
+
+const isEmailInbox = computed(() => {
+  const { inbox_id: inboxId } = props.chat;
+  const inboxData = store.getters['inboxes/getInbox'](inboxId);
+  return inboxData?.channel_type === 'Channel::Email';
+});
+
+const showTitle = computed(() => isEmailInbox.value);
+
+const startEditingTitle = () => {
+  editedTitle.value = conversationTitle.value;
+  isEditingTitle.value = true;
+};
+
+const saveTitle = () => {
+  isEditingTitle.value = false;
+  const newTitle = editedTitle.value.trim();
+  if (newTitle !== conversationTitle.value) {
+    store.dispatch('updateTitle', {
+      conversationId: props.chat.id,
+      title: newTitle,
+    });
+  }
+};
+
+const cancelEditingTitle = () => {
+  isEditingTitle.value = false;
+};
+
 const chatMetadata = computed(() => props.chat.meta);
 
 const backButtonUrl = computed(() => {
@@ -142,6 +175,31 @@ const copyConversationId = async () => {
             class="text-n-amber-10 my-0 mx-0 min-w-[14px] flex-shrink-0"
             icon="warning"
           />
+        </div>
+
+        <div
+          v-if="showTitle"
+          class="flex items-center max-w-full gap-1 min-w-0"
+        >
+          <input
+            v-if="isEditingTitle"
+            v-model="editedTitle"
+            class="text-xs w-full bg-transparent border-b border-n-slate-6 text-n-slate-12 outline-none px-0 py-0.5"
+            maxlength="255"
+            autofocus
+            @blur="saveTitle"
+            @keyup.enter="saveTitle"
+            @keyup.escape="cancelEditingTitle"
+          />
+          <button
+            v-else
+            type="button"
+            class="truncate text-xs text-n-slate-11 hover:text-n-slate-12 !p-0 cursor-pointer"
+            :title="conversationTitle || $t('CONVERSATION.HEADER.ADD_TITLE')"
+            @click="startEditingTitle"
+          >
+            {{ conversationTitle || $t('CONVERSATION.HEADER.ADD_TITLE') }}
+          </button>
         </div>
 
         <div

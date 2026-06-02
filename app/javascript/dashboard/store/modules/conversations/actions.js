@@ -527,6 +527,15 @@ const actions = {
     commit(types.ASSIGN_PRIORITY, { priority, conversationId });
   },
 
+  updateTitle: async ({ commit }, { conversationId, title }) => {
+    try {
+      await ConversationApi.updateTitle({ conversationId, title });
+      commit(types.UPDATE_CONVERSATION, { id: conversationId, title });
+    } catch (error) {
+      // Handle error
+    }
+  },
+
   setContextMenuChatId({ commit }, chatId) {
     commit(types.SET_CONTEXT_MENU_CHAT_ID, chatId);
   },

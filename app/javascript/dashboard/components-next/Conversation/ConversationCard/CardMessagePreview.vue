@@ -17,11 +17,9 @@ const { t } = useI18n();
 const { getPlainText } = useMessageFormatter();
 
 const lastNonActivityMessageContent = computed(() => {
-  const { lastNonActivityMessage = {}, customAttributes = {} } =
-    props.conversation;
-  const { email: { subject } = {} } = customAttributes;
+  const { lastNonActivityMessage = {}, title } = props.conversation;
   return getPlainText(
-    subject || lastNonActivityMessage?.content || t('CHAT_LIST.NO_CONTENT')
+    title || lastNonActivityMessage?.content || t('CHAT_LIST.NO_CONTENT')
   );
 });
 

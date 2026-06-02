@@ -105,6 +105,7 @@
       "OPEN": "More",
       "CLOSE": "Close",
       "DETAILS": "details",
+      "ADD_TITLE": "(No subject — click to add)",
       "COPY_ID_SUCCESS": "Conversation ID copied to clipboard",
       "SNOOZED_UNTIL": "Snoozed until",
       "SNOOZED_UNTIL_TOMORROW": "Snoozed until tomorrow",
