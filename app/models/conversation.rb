@@ -65,6 +65,7 @@ class Conversation < ApplicationRecord
   validates :account_id, presence: true
   validates :inbox_id, presence: true
   validates :contact_id, presence: true
+  validates :title, length: { maximum: 255 }, allow_blank: true
   before_validation :validate_additional_attributes
   before_validation :reset_agent_bot_when_assignee_present
   validates :additional_attributes, jsonb_attributes_length: true
@@ -128,6 +129,10 @@ class Conversation < ApplicationRecord
 
   def can_reply?
     Conversations::MessageWindowService.new(self).can_reply?
+  end
+
+  def display_title
+    title.presence || additional_attributes&.dig('mail_subject').presence
   end
 
   def language

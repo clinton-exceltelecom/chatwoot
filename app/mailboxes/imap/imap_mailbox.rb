@@ -96,6 +96,7 @@ class Imap::ImapMailbox
         inbox_id: @inbox.id,
         contact_id: @contact.id,
         contact_inbox_id: @contact_inbox.id,
+        title: @processed_mail.subject,
         additional_attributes: {
           source: 'email',
           in_reply_to: in_reply_to,
