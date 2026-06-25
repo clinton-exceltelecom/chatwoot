@@ -421,6 +421,7 @@ Rails.application.routes.draw do
 
       # Frontend API endpoint to trigger SAML authentication flow
       post 'auth/saml_login', to: 'auth#saml_login'
+      get 'auth/capabilities', to: 'auth#capabilities'
 
       resource :profile, only: [:show, :update] do
         delete :avatar, on: :collection
