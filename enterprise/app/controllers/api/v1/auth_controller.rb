@@ -1,6 +1,10 @@
 class Api::V1::AuthController < Api::BaseController
-  skip_before_action :authenticate_user!, only: [:saml_login]
+  skip_before_action :authenticate_user!, only: %i[saml_login capabilities]
   before_action :find_user_and_account, only: [:saml_login]
+
+  def capabilities
+    render json: { allowed_login_methods: allowed_login_methods }
+  end
 
   def saml_login
     unless saml_sso_enabled?
@@ -77,5 +81,12 @@ class Api::V1::AuthController < Api::BaseController
 
   def saml_sso_enabled?
     GlobalConfigService.load('ENABLE_SAML_SSO_LOGIN', 'true').to_s == 'true'
+  end
+
+  def allowed_login_methods
+    methods = ['email']
+    methods << 'google_oauth' if GlobalConfigService.load('ENABLE_GOOGLE_OAUTH_LOGIN', 'true').to_s != 'false'
+    methods << 'saml' if ChatwootHub.pricing_plan != 'community' && GlobalConfigService.load('ENABLE_SAML_SSO_LOGIN', 'true').to_s != 'false'
+    methods
   end
 end
