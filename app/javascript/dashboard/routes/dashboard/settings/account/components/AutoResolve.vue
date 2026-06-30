@@ -18,6 +18,7 @@ const unit = ref(DURATION_UNITS.MINUTES);
 const message = ref('');
 const labelToApply = ref({});
 const ignoreWaiting = ref(false);
+const followBusinessHours = ref(false);
 const isEnabled = ref(false);
 const isSubmitting = ref(false);
 
@@ -50,11 +51,13 @@ watch(
       auto_resolve_message,
       auto_resolve_ignore_waiting,
       auto_resolve_label,
+      auto_resolve_during_business_hours,
     } = currentAccount.value?.settings || {};
 
     duration.value = auto_resolve_after;
     message.value = auto_resolve_message;
     ignoreWaiting.value = auto_resolve_ignore_waiting;
+    followBusinessHours.value = auto_resolve_during_business_hours ?? false;
     // find the correct label option from the list
     // the single select component expects the full label object
     // in our case, the label id and name are both the same
@@ -103,18 +106,21 @@ const handleSubmit = async () => {
     auto_resolve_message: message.value,
     auto_resolve_ignore_waiting: ignoreWaiting.value,
     auto_resolve_label: selectedLabelName.value,
+    auto_resolve_during_business_hours: followBusinessHours.value,
   });
 };
 
 const handleDisable = async () => {
   duration.value = null;
   message.value = '';
+  followBusinessHours.value = false;
 
   return updateAccountSettings({
     auto_resolve_after: null,
     auto_resolve_message: '',
     auto_resolve_ignore_waiting: false,
     auto_resolve_label: null,
+    auto_resolve_during_business_hours: false,
   });
 };
 
@@ -185,6 +191,16 @@ const toggleAutoResolve = async () => {
                 }}
               </span>
               <Switch v-model="ignoreWaiting" />
+            </div>
+            <div class="p-3 h-12 flex items-center justify-between">
+              <span>
+                {{
+                  t(
+                    'GENERAL_SETTINGS.FORM.AUTO_RESOLVE.FOLLOW_BUSINESS_HOURS.LABEL'
+                  )
+                }}
+              </span>
+              <Switch v-model="followBusinessHours" />
             </div>
             <div class="p-3 h-12 flex items-center justify-between">
               <span>
