@@ -4,6 +4,7 @@ class Conversations::ResolutionJob < ApplicationJob
   def perform(account:)
     # limiting the number of conversations to be resolved to avoid any performance issues
     resolvable_conversations = conversation_scope(account).limit(Limits::BULK_ACTIONS_LIMIT)
+    resolvable_conversations = resolvable_conversations.select { |c| business_hours_elapsed?(c, account) }
     resolvable_conversations.each do |conversation|
       # send message from bot that conversation has been resolved
       # do this is account.auto_resolve_message is set
@@ -23,5 +24,12 @@ class Conversations::ResolutionJob < ApplicationJob
                  end
     # Exclude orphan conversations where contact was deleted but conversation cleanup is pending
     base_scope.where.not(contact_id: nil)
+  end
+
+  def business_hours_elapsed?(conversation, account)
+    return true unless account.auto_resolve_during_business_hours
+
+    elapsed = Conversations::BusinessHoursElapsedService.new(conversation).elapsed_minutes
+    elapsed >= account.auto_resolve_after
   end
 end

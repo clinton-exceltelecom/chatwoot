@@ -70,6 +70,9 @@
         "IGNORE_WAITING": {
           "LABEL": "Skip conversations waiting for agent’s reply"
         },
+        "FOLLOW_BUSINESS_HOURS": {
+          "LABEL": "Only count business hours toward inactivity"
+        },
         "UPDATE_BUTTON": "Save Changes"
       },
       "NAME": {
