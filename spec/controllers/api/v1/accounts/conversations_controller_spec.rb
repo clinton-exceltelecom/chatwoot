@@ -1219,4 +1219,88 @@ RSpec.describe 'Conversations API', type: :request do
       end
     end
   end
+
+  describe 'POST /api/v1/accounts/{account.id}/conversations/:id/merge' do
+    let(:contact) { create(:contact, account: account) }
+    let(:inbox) { create(:inbox, account: account) }
+    let(:contact_inbox) { create(:contact_inbox, contact: contact, inbox: inbox) }
+    let(:base_conversation) do
+      create(:conversation, account: account, contact: contact, inbox: inbox, contact_inbox: contact_inbox)
+    end
+    let(:mergee_conversation) do
+      create(:conversation, account: account, contact: contact, inbox: inbox, contact_inbox: contact_inbox)
+    end
+
+    context 'when it is an unauthenticated user' do
+      it 'returns unauthorized' do
+        post "/api/v1/accounts/#{account.id}/conversations/#{mergee_conversation.display_id}/merge",
+             params: { target_id: base_conversation.display_id },
+             as: :json
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    context 'when it is an authenticated agent' do
+      let(:agent) { create(:user, account: account, role: :agent) }
+
+      before do
+        create(:inbox_member, user: agent, inbox: inbox)
+      end
+
+      it 'merges the conversations and returns the base conversation' do
+        post "/api/v1/accounts/#{account.id}/conversations/#{mergee_conversation.display_id}/merge",
+             headers: agent.create_new_auth_token,
+             params: { target_id: base_conversation.display_id },
+             as: :json
+
+        expect(response).to have_http_status(:success)
+        body = JSON.parse(response.body, symbolize_names: true)
+        expect(body[:id]).to eq(base_conversation.display_id)
+      end
+
+      it 'resolves the mergee conversation' do
+        post "/api/v1/accounts/#{account.id}/conversations/#{mergee_conversation.display_id}/merge",
+             headers: agent.create_new_auth_token,
+             params: { target_id: base_conversation.display_id },
+             as: :json
+
+        expect(mergee_conversation.reload.status).to eq('resolved')
+      end
+
+      it 'returns not found when target conversation does not exist' do
+        post "/api/v1/accounts/#{account.id}/conversations/#{mergee_conversation.display_id}/merge",
+             headers: agent.create_new_auth_token,
+             params: { target_id: 999_999 },
+             as: :json
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'returns unprocessable entity when merging conversations from different contacts' do
+        other_contact = create(:contact, account: account)
+        other_conversation = create(:conversation, account: account, contact: other_contact)
+
+        post "/api/v1/accounts/#{account.id}/conversations/#{mergee_conversation.display_id}/merge",
+             headers: agent.create_new_auth_token,
+             params: { target_id: other_conversation.display_id },
+             as: :json
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context 'when it is an authenticated administrator' do
+      let(:administrator) { create(:user, account: account, role: :administrator) }
+
+      it 'merges the conversations and returns the base conversation' do
+        post "/api/v1/accounts/#{account.id}/conversations/#{mergee_conversation.display_id}/merge",
+             headers: administrator.create_new_auth_token,
+             params: { target_id: base_conversation.display_id },
+             as: :json
+
+        expect(response).to have_http_status(:success)
+      end
+    end
+  end
 end
