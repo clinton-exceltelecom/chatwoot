@@ -138,6 +138,21 @@ class Api::V1::Accounts::ConversationsController < Api::V1::Accounts::BaseContro
     @conversation.save!
   end
 
+  def merge
+    target_conversation = Current.account.conversations.find_by!(display_id: params[:target_id])
+    authorize target_conversation, :show?
+
+    @conversation = ConversationMergeAction.new(
+      account: Current.account,
+      base_conversation: target_conversation,
+      mergee_conversation: @conversation
+    ).perform
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Target conversation not found' }, status: :not_found
+  rescue StandardError => e
+    render json: { error: e.message }, status: :unprocessable_entity
+  end
+
   def destroy
     authorize @conversation, :destroy?
     ::Conversations::DeleteService.new(conversation: @conversation, user: Current.user, ip: request.ip).perform

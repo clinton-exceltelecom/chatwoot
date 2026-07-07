@@ -164,6 +164,7 @@ Rails.application.routes.draw do
               post :update_last_seen
               post :unread
               post :custom_attributes
+              post :merge
               get :attachments
               get :inbox_assistant
               get :reporting_events if ChatwootApp.enterprise?
@@ -502,6 +503,7 @@ Rails.application.routes.draw do
               get :conversations
               get :conversations_summary
               get :conversation_traffic
+              get :drilldown
               get :bot_metrics
               get :inbox_label_matrix
               get :first_response_time_distribution
@@ -528,9 +530,11 @@ Rails.application.routes.draw do
             member do
               post :checkout
               post :subscription
+              post :select_billing_currency
               get :limits
               post :toggle_deletion
               post :topup_checkout
+              get :topup_options
             end
           end
         end
