@@ -17,6 +17,12 @@ class ConversationApi extends ApiClient {
   getUnreadCounts() {
     return axios.get(`${this.url}/unread_counts`);
   }
+
+  merge(sourceDisplayId, targetDisplayId) {
+    return axios.post(`${this.url}/${sourceDisplayId}/merge`, {
+      target_id: targetDisplayId,
+    });
+  }
 }
 
 export default new ConversationApi();

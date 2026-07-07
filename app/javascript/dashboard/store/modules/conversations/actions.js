@@ -1,5 +1,6 @@
 import types from '../../mutation-types';
 import ConversationApi from '../../../api/inbox/conversation';
+import ConversationsAPI from '../../../api/conversations';
 import MessageApi from '../../../api/inbox/message';
 import { MESSAGE_STATUS, MESSAGE_TYPE } from 'shared/constants/messages';
 import { createPendingMessage } from 'dashboard/helper/commons';
@@ -542,6 +543,15 @@ const actions = {
 
   ...messageReadActions,
   ...messageTranslateActions,
+
+  mergeConversation: async ({ commit, dispatch }, { sourceId, targetId }) => {
+    const response = await ConversationsAPI.merge(sourceId, targetId);
+    commit(types.UPDATE_CONVERSATION, response.data);
+    dispatch('contactConversations/get', response.data.meta?.sender?.id, {
+      root: true,
+    });
+    return response.data;
+  },
 };
 
 export default actions;
