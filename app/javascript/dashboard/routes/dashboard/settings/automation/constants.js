@@ -707,6 +707,37 @@ export const AUTOMATION_RULE_EVENTS = [
     key: 'conversation_opened',
     value: 'CONVERSATION_OPENED',
   },
+  {
+    key: 'time_elapsed',
+    value: 'TIME_ELAPSED',
+  },
+];
+
+// Anchor options for time_elapsed automation rules.
+// Each key corresponds to a conversations column on the backend.
+export const SCHEDULE_ANCHOR_OPTIONS = [
+  {
+    key: 'conversation_created',
+    value: 'CONVERSATION_CREATED',
+  },
+  {
+    key: 'last_activity',
+    value: 'LAST_ACTIVITY',
+  },
+  {
+    key: 'waiting_since',
+    value: 'WAITING_SINCE',
+  },
+  {
+    key: 'first_reply_created',
+    value: 'FIRST_REPLY_CREATED',
+  },
+];
+
+export const SCHEDULE_DURATION_UNITS = [
+  { key: 'minutes', value: 'MINUTES', multiplier: 1 },
+  { key: 'hours', value: 'HOURS', multiplier: 60 },
+  { key: 'days', value: 'DAYS', multiplier: 1440 },
 ];
 
 export const AUTOMATION_ACTION_TYPES = [
