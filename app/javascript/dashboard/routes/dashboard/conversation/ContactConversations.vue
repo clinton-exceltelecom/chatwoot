@@ -12,6 +12,7 @@ import ConversationCard from 'dashboard/components/widgets/conversation/Conversa
 import ContextMenu from 'dashboard/components/ui/ContextMenu.vue';
 import ConversationContextMenu from 'dashboard/components/widgets/conversation/contextMenu/Index.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
+import ConversationMergeModal from 'dashboard/modules/conversation/ConversationMergeModal.vue';
 
 const props = defineProps({
   contactId: { type: [String, Number], required: true },
@@ -48,6 +49,23 @@ const previousConversations = computed(() =>
 const activeContextChat = ref(null);
 const showContextMenu = ref(false);
 const contextMenu = ref({ x: null, y: null });
+
+const mergeTargetConversation = ref(null);
+const showMergeModal = ref(false);
+
+const currentConversationDisplayId = computed(
+  () => currentChat.value?.display_id
+);
+
+const onMergeClick = conversation => {
+  mergeTargetConversation.value = conversation;
+  showMergeModal.value = true;
+};
+
+const onMergeClose = () => {
+  showMergeModal.value = false;
+  mergeTargetConversation.value = null;
+};
 
 const buildConversationUrl = conversationId => {
   const {
@@ -139,20 +157,33 @@ onMounted(() => {
       v-else
       class="contact-conversation--list [&>.conversation:last-child]:!border-b-0 [&>.conversation:last-child:hover]:!border-b-0 [&>.conversation:last-child]:!rounded-b-lg"
     >
-      <ConversationCard
+      <div
         v-for="conversation in previousConversations"
         :key="conversation.id"
-        :chat="conversation"
-        :current-contact="contactGetter(conversation.meta?.sender?.id) || {}"
-        :assignee="conversation.meta?.assignee || {}"
-        :inbox="inboxGetter(conversation.inbox_id) || {}"
-        :is-active-chat="currentChat.id === conversation.id"
-        :show-inbox-name="showInboxName"
-        hide-thumbnail
-        compact
-        @click="onCardClick(conversation, $event)"
-        @contextmenu="openContextMenu(conversation, $event)"
-      />
+        class="relative group"
+      >
+        <ConversationCard
+          :chat="conversation"
+          :current-contact="contactGetter(conversation.meta?.sender?.id) || {}"
+          :assignee="conversation.meta?.assignee || {}"
+          :inbox="inboxGetter(conversation.inbox_id) || {}"
+          :is-active-chat="currentChat.id === conversation.id"
+          :show-inbox-name="showInboxName"
+          hide-thumbnail
+          compact
+          @click="onCardClick(conversation, $event)"
+          @contextmenu="openContextMenu(conversation, $event)"
+        />
+        <button
+          v-if="conversation.status === 'open'"
+          class="absolute bottom-2 right-2 hidden group-hover:flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-n-alpha-2 text-n-slate-11 hover:bg-n-ruby-3 hover:text-n-ruby-11 transition-colors z-10"
+          :title="$t('CONVERSATION.MERGE_CONVERSATION.TITLE')"
+          @click.stop="onMergeClick(conversation)"
+        >
+          <span class="i-lucide-git-merge w-3 h-3" />
+          {{ $t('CONVERSATION.MERGE_CONVERSATION.BUTTON_LABEL') }}
+        </button>
+      </div>
     </div>
     <ContextMenu
       v-if="showContextMenu && activeContextChat"
@@ -176,6 +207,13 @@ onMounted(() => {
   <div v-else class="flex items-center justify-center py-5">
     <Spinner />
   </div>
+  <ConversationMergeModal
+    v-if="showMergeModal && mergeTargetConversation"
+    :current-conversation-display-id="currentConversationDisplayId"
+    :source-conversation="mergeTargetConversation"
+    @close="onMergeClose"
+    @merged="onMergeClose"
+  />
 </template>
 
 <style lang="scss" scoped>

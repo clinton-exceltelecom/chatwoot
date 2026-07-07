@@ -160,6 +160,17 @@
         "FAILED": "Couldn't change priority. Please try again."
       }
     },
+    "MERGE_CONVERSATION": {
+      "TITLE": "Merge into this conversation",
+      "BUTTON_LABEL": "Merge into this",
+      "CONFIRM_TITLE": "Merge conversation #{sourceId} into #{targetId}?",
+      "CONFIRM_DESCRIPTION": "All messages from #{sourceId} will be moved here and #{sourceId} will be resolved. This cannot be undone.",
+      "CONFIRM": "Merge",
+      "CONFIRM_MERGING": "Merging...",
+      "CANCEL": "Cancel",
+      "SUCCESS": "Conversation merged successfully",
+      "ERROR": "Could not merge conversations. Please try again."
+    },
     "DELETE_CONVERSATION": {
       "TITLE": "Delete conversation #{conversationId}",
       "DESCRIPTION": "Are you sure you want to delete this conversation?",
