@@ -2,24 +2,38 @@
 #
 # Table name: automation_rules
 #
-#  id          :bigint           not null, primary key
-#  actions     :jsonb            not null
-#  active      :boolean          default(TRUE), not null
-#  conditions  :jsonb            not null
-#  description :text
-#  event_name  :string           not null
-#  name        :string           not null
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
-#  account_id  :bigint           not null
+#  id                        :bigint           not null, primary key
+#  actions                   :jsonb            not null
+#  active                    :boolean          default(TRUE), not null
+#  conditions                :jsonb            not null
+#  description               :text
+#  event_name                :string           not null
+#  name                      :string           not null
+#  schedule_anchor           :string
+#  schedule_duration_minutes :integer
+#  created_at                :datetime         not null
+#  updated_at                :datetime         not null
+#  account_id                :bigint           not null
 #
 # Indexes
 #
-#  index_automation_rules_on_account_id  (account_id)
+#  index_automation_rules_on_account_id    (account_id)
+#  index_automation_rules_on_schedule_anchor (schedule_anchor) WHERE schedule_anchor IS NOT NULL
 #
 class AutomationRule < ApplicationRecord
   include Rails.application.routes.url_helpers
   include Reauthorizable
+
+  # Maps schedule_anchor values to the corresponding conversations column.
+  # Used by Automations::TimerTriggerJob to build the time threshold query.
+  SCHEDULE_ANCHOR_COLUMN_MAP = {
+    'conversation_created' => 'created_at',
+    'last_activity' => 'last_activity_at',
+    'waiting_since' => 'waiting_since',
+    'first_reply_created' => 'first_reply_created_at'
+  }.freeze
+
+  VALID_SCHEDULE_ANCHORS = SCHEDULE_ANCHOR_COLUMN_MAP.keys.freeze
 
   belongs_to :account
   has_many_attached :files
@@ -28,11 +42,13 @@ class AutomationRule < ApplicationRecord
   validate :json_actions_format
   validate :query_operator_presence
   validate :query_operator_value
+  validate :schedule_fields_presence
   validates :account_id, presence: true
 
   after_update_commit :reauthorized!, if: -> { saved_change_to_conditions? }
 
   scope :active, -> { where(active: true) }
+  scope :timer_rules, -> { active.where(event_name: 'time_elapsed') }
 
   def conditions_attributes
     %w[content email country_code status message_type browser_language assignee_id team_id referer city company_name inbox_id
@@ -103,6 +119,28 @@ class AutomationRule < ApplicationRecord
 
     operator = query_operator.upcase
     errors.add(:conditions, 'Query operator must be either "AND" or "OR"') unless %w[AND OR].include?(operator)
+  end
+
+  # Validates that time_elapsed rules have valid schedule fields,
+  # and that non-timer rules do not supply them.
+  def schedule_fields_presence
+    if event_name == 'time_elapsed'
+      unless VALID_SCHEDULE_ANCHORS.include?(schedule_anchor)
+        errors.add(:schedule_anchor, "must be one of: #{VALID_SCHEDULE_ANCHORS.join(', ')}")
+      end
+
+      if schedule_duration_minutes.blank? || schedule_duration_minutes <= 0
+        errors.add(:schedule_duration_minutes, 'must be a positive integer')
+      end
+    else
+      if schedule_anchor.present?
+        errors.add(:schedule_anchor, 'can only be set for time_elapsed events')
+      end
+
+      if schedule_duration_minutes.present?
+        errors.add(:schedule_duration_minutes, 'can only be set for time_elapsed events')
+      end
+    end
   end
 end
 

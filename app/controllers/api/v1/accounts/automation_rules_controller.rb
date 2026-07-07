@@ -57,6 +57,7 @@ class Api::V1::Accounts::AutomationRulesController < Api::V1::Accounts::BaseCont
   def automation_rules_permit
     params.permit(
       :name, :description, :event_name, :active,
+      :schedule_anchor, :schedule_duration_minutes,
       conditions: [:attribute_key, :filter_operator, :query_operator, :custom_attribute_type, { values: [] }],
       actions: [:action_name, { action_params: [] }]
     )

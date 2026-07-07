@@ -136,7 +136,24 @@
       "CONVERSATION_UPDATED": "Conversation Updated",
       "MESSAGE_CREATED": "Message Created",
       "CONVERSATION_RESOLVED": "Conversation Resolved",
-      "CONVERSATION_OPENED": "Conversation Opened"
+      "CONVERSATION_OPENED": "Conversation Opened",
+      "TIME_ELAPSED": "Time Since Event"
+    },
+    "SCHEDULE": {
+      "LABEL": "Schedule",
+      "AFTER": "After",
+      "SINCE": "Since",
+      "ANCHOR": {
+        "CONVERSATION_CREATED": "Conversation was created",
+        "LAST_ACTIVITY": "Last activity",
+        "WAITING_SINCE": "Customer last replied (waiting for agent)",
+        "FIRST_REPLY_CREATED": "First agent reply was sent"
+      },
+      "UNIT": {
+        "MINUTES": "minutes",
+        "HOURS": "hours",
+        "DAYS": "days"
+      }
     },
     "ACTIONS": {
       "ASSIGN_AGENT": "Assign to Agent",

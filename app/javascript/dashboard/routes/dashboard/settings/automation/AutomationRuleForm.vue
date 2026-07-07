@@ -14,7 +14,12 @@ import {
   showActionInput,
 } from 'dashboard/helper/automationHelper';
 import { validateAutomation } from 'dashboard/helper/validations';
-import { AUTOMATION_RULE_EVENTS, AUTOMATION_ACTION_TYPES } from './constants';
+import {
+  AUTOMATION_RULE_EVENTS,
+  AUTOMATION_ACTION_TYPES,
+  SCHEDULE_ANCHOR_OPTIONS,
+  SCHEDULE_DURATION_UNITS,
+} from './constants';
 
 const props = defineProps({
   mode: {
@@ -79,6 +84,60 @@ const dialogRef = ref(null);
 const conditionsRef = useTemplateRef('conditionsRef');
 const errors = ref({});
 
+const eventName = computed(() => automation.value?.event_name);
+
+// --- Schedule (time_elapsed) state ---
+// We store duration as a human-friendly number + unit pair locally and
+// sync the product (minutes) back into automation.schedule_duration_minutes.
+const scheduleDuration = ref(1);
+const scheduleUnit = ref('hours'); // key from SCHEDULE_DURATION_UNITS
+
+const isTimerEvent = computed(() => eventName.value === 'time_elapsed');
+
+const scheduleAnchorOptions = computed(() =>
+  SCHEDULE_ANCHOR_OPTIONS.map(opt => ({
+    ...opt,
+    label: t(`AUTOMATION.SCHEDULE.ANCHOR.${opt.value}`),
+  }))
+);
+
+const scheduleDurationUnits = computed(() =>
+  SCHEDULE_DURATION_UNITS.map(unit => ({
+    ...unit,
+    label: t(`AUTOMATION.SCHEDULE.UNIT.${unit.value}`),
+  }))
+);
+
+// Keep schedule_duration_minutes in sync whenever the human-friendly values change.
+watch([scheduleDuration, scheduleUnit], ([duration, unitKey]) => {
+  if (!isTimerEvent.value) return;
+  const unit = SCHEDULE_DURATION_UNITS.find(u => u.key === unitKey);
+  if (unit && duration > 0) {
+    automation.value.schedule_duration_minutes = duration * unit.multiplier;
+  }
+});
+
+// When editing an existing timer rule, decompose stored minutes back into
+// a human-friendly duration + unit for display.
+watch(
+  () => automation.value?.schedule_duration_minutes,
+  minutes => {
+    if (!minutes || !isTimerEvent.value) return;
+    // Pick the largest unit that divides evenly (days → hours → minutes).
+    const units = [...SCHEDULE_DURATION_UNITS].reverse();
+    const match = units.find(u => minutes % u.multiplier === 0);
+    if (match) {
+      scheduleDuration.value = minutes / match.multiplier;
+      scheduleUnit.value = match.key;
+    } else {
+      scheduleDuration.value = minutes;
+      scheduleUnit.value = 'minutes';
+    }
+  },
+  { immediate: true }
+);
+// --- End schedule state ---
+
 const isEditMode = computed(() => props.mode === 'edit');
 
 const titleKey = computed(() =>
@@ -108,8 +167,6 @@ const getTranslatedAttributes = (type, event) => {
     };
   });
 };
-
-const eventName = computed(() => automation.value?.event_name);
 
 const filterTypes = computed(() => {
   const event = eventName.value;
@@ -293,6 +350,59 @@ defineExpose({ open, close });
           {{ $t('AUTOMATION.FORM.RESET_MESSAGE') }}
         </p>
       </div>
+      <!-- Schedule section (time_elapsed event only) -->
+      <section v-if="isTimerEvent" class="mb-6">
+        <label class="block mb-2 font-medium text-sm">
+          {{ $t('AUTOMATION.SCHEDULE.LABEL') }}
+        </label>
+        <div
+          class="grid gap-4 p-3 outline outline-1 rounded-xl -outline-offset-1 outline-n-weak dark:outline-n-strong"
+        >
+          <!-- Duration row -->
+          <div class="flex items-center gap-3">
+            <span class="text-sm text-n-slate-11 shrink-0">
+              {{ $t('AUTOMATION.SCHEDULE.AFTER') }}
+            </span>
+            <input
+              v-model.number="scheduleDuration"
+              type="number"
+              min="1"
+              class="w-20 rounded-lg border border-n-weak px-2 py-1 text-sm"
+            />
+            <select
+              v-model="scheduleUnit"
+              class="m-0 rounded-lg border border-n-weak px-2 py-1 text-sm"
+            >
+              <option
+                v-for="unit in scheduleDurationUnits"
+                :key="unit.key"
+                :value="unit.key"
+              >
+                {{ unit.label }}
+              </option>
+            </select>
+          </div>
+          <!-- Anchor row -->
+          <div class="flex items-center gap-3">
+            <span class="text-sm text-n-slate-11 shrink-0">
+              {{ $t('AUTOMATION.SCHEDULE.SINCE') }}
+            </span>
+            <select
+              v-model="automation.schedule_anchor"
+              class="m-0 rounded-lg border border-n-weak px-2 py-1 text-sm"
+            >
+              <option
+                v-for="opt in scheduleAnchorOptions"
+                :key="opt.key"
+                :value="opt.key"
+              >
+                {{ opt.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </section>
+      <!-- End Schedule section -->
       <!-- Conditions Start -->
       <section class="mb-5">
         <label>

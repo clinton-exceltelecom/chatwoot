@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_06_20_000000) do
+ActiveRecord::Schema[7.1].define(version: 2026_07_06_210000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -259,7 +259,10 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_20_000000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "active", default: true, null: false
+    t.string "schedule_anchor"
+    t.integer "schedule_duration_minutes"
     t.index ["account_id"], name: "index_automation_rules_on_account_id"
+    t.index ["schedule_anchor"], name: "index_automation_rules_on_schedule_anchor", where: "(schedule_anchor IS NOT NULL)"
   end
 
   create_table "calls", force: :cascade do |t|

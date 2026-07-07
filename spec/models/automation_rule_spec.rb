@@ -137,4 +137,124 @@ RSpec.describe AutomationRule do
       end
     end
   end
+
+  describe 'schedule validations' do
+    let(:account) { create(:account) }
+    let(:base_conditions) do
+      [{ 'attribute_key' => 'status', 'filter_operator' => 'equal_to', 'values' => ['open'], 'query_operator' => nil }]
+    end
+    let(:base_actions) do
+      [{ 'action_name' => 'assign_team', 'action_params' => [] }]
+    end
+
+    def build_rule(attrs = {})
+      AutomationRule.new(
+        {
+          account: account,
+          name: 'Test rule',
+          event_name: 'conversation_created',
+          conditions: base_conditions,
+          actions: base_actions,
+          active: true
+        }.merge(attrs)
+      )
+    end
+
+    context 'when event_name is time_elapsed' do
+      it 'is valid with a valid anchor and positive duration' do
+        rule = build_rule(
+          event_name: 'time_elapsed',
+          schedule_anchor: 'waiting_since',
+          schedule_duration_minutes: 60
+        )
+        expect(rule).to be_valid
+      end
+
+      it 'is invalid without a schedule_anchor' do
+        rule = build_rule(
+          event_name: 'time_elapsed',
+          schedule_anchor: nil,
+          schedule_duration_minutes: 60
+        )
+        expect(rule).not_to be_valid
+        expect(rule.errors[:schedule_anchor]).to be_present
+      end
+
+      it 'is invalid with an unrecognised schedule_anchor' do
+        rule = build_rule(
+          event_name: 'time_elapsed',
+          schedule_anchor: 'not_a_real_anchor',
+          schedule_duration_minutes: 60
+        )
+        expect(rule).not_to be_valid
+        expect(rule.errors[:schedule_anchor]).to be_present
+      end
+
+      it 'is invalid without schedule_duration_minutes' do
+        rule = build_rule(
+          event_name: 'time_elapsed',
+          schedule_anchor: 'conversation_created',
+          schedule_duration_minutes: nil
+        )
+        expect(rule).not_to be_valid
+        expect(rule.errors[:schedule_duration_minutes]).to be_present
+      end
+
+      it 'is invalid when schedule_duration_minutes is zero' do
+        rule = build_rule(
+          event_name: 'time_elapsed',
+          schedule_anchor: 'conversation_created',
+          schedule_duration_minutes: 0
+        )
+        expect(rule).not_to be_valid
+        expect(rule.errors[:schedule_duration_minutes]).to be_present
+      end
+
+      it 'is invalid when schedule_duration_minutes is negative' do
+        rule = build_rule(
+          event_name: 'time_elapsed',
+          schedule_anchor: 'conversation_created',
+          schedule_duration_minutes: -10
+        )
+        expect(rule).not_to be_valid
+        expect(rule.errors[:schedule_duration_minutes]).to be_present
+      end
+
+      it 'accepts all valid schedule anchors' do
+        AutomationRule::VALID_SCHEDULE_ANCHORS.each do |anchor|
+          rule = build_rule(
+            event_name: 'time_elapsed',
+            schedule_anchor: anchor,
+            schedule_duration_minutes: 30
+          )
+          expect(rule).to be_valid, "Expected anchor '#{anchor}' to be valid but got: #{rule.errors.full_messages}"
+        end
+      end
+    end
+
+    context 'when event_name is not time_elapsed' do
+      it 'is invalid when schedule_anchor is set on a non-timer event' do
+        rule = build_rule(
+          event_name: 'conversation_created',
+          schedule_anchor: 'waiting_since'
+        )
+        expect(rule).not_to be_valid
+        expect(rule.errors[:schedule_anchor]).to be_present
+      end
+
+      it 'is invalid when schedule_duration_minutes is set on a non-timer event' do
+        rule = build_rule(
+          event_name: 'conversation_created',
+          schedule_duration_minutes: 60
+        )
+        expect(rule).not_to be_valid
+        expect(rule.errors[:schedule_duration_minutes]).to be_present
+      end
+
+      it 'is valid without schedule fields' do
+        rule = build_rule(event_name: 'conversation_created')
+        expect(rule).to be_valid
+      end
+    end
+  end
 end
