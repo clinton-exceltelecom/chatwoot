@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore } from 'vuex';
 import { useAlert } from 'dashboard/composables';
@@ -21,11 +21,18 @@ const { t } = useI18n();
 const store = useStore();
 const isMerging = ref(false);
 
+const sourceDisplayId = computed(
+  () =>
+    props.sourceConversation.display_id ||
+    props.sourceConversation.displayId ||
+    props.sourceConversation.id
+);
+
 const onConfirm = async () => {
   isMerging.value = true;
   try {
     await store.dispatch('mergeConversation', {
-      sourceId: props.sourceConversation.display_id,
+      sourceId: sourceDisplayId.value,
       targetId: props.currentConversationDisplayId,
     });
     useAlert(t('CONVERSATION.MERGE_CONVERSATION.SUCCESS'));
@@ -50,7 +57,7 @@ const onConfirm = async () => {
       <h3 class="text-base font-semibold text-n-slate-12">
         {{
           $t('CONVERSATION.MERGE_CONVERSATION.CONFIRM_TITLE', {
-            sourceId: sourceConversation.display_id,
+            sourceId: sourceDisplayId,
             targetId: currentConversationDisplayId,
           })
         }}
@@ -58,7 +65,7 @@ const onConfirm = async () => {
       <p class="text-sm text-n-slate-11 mb-0">
         {{
           $t('CONVERSATION.MERGE_CONVERSATION.CONFIRM_DESCRIPTION', {
-            sourceId: sourceConversation.display_id,
+            sourceId: sourceDisplayId,
           })
         }}
       </p>

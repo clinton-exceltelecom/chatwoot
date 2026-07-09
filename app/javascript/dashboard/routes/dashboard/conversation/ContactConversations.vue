@@ -62,6 +62,9 @@ const onMergeClick = conversation => {
   showMergeModal.value = true;
 };
 
+const getDisplayId = conversation =>
+  conversation.display_id || conversation.displayId || conversation.id;
+
 const onMergeClose = () => {
   showMergeModal.value = false;
   mergeTargetConversation.value = null;
@@ -160,7 +163,7 @@ onMounted(() => {
       <div
         v-for="conversation in previousConversations"
         :key="conversation.id"
-        class="relative group"
+        class="group"
       >
         <ConversationCard
           :chat="conversation"
@@ -174,15 +177,19 @@ onMounted(() => {
           @click="onCardClick(conversation, $event)"
           @contextmenu="openContextMenu(conversation, $event)"
         />
-        <button
+        <div
           v-if="conversation.status === 'open'"
-          class="absolute bottom-2 right-2 hidden group-hover:flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-n-alpha-2 text-n-slate-11 hover:bg-n-ruby-3 hover:text-n-ruby-11 transition-colors z-10"
-          :title="$t('CONVERSATION.MERGE_CONVERSATION.TITLE')"
-          @click.stop="onMergeClick(conversation)"
+          class="hidden group-hover:flex justify-end px-2 pb-2 -mt-1"
         >
-          <span class="i-lucide-git-merge w-3 h-3" />
-          {{ $t('CONVERSATION.MERGE_CONVERSATION.BUTTON_LABEL') }}
-        </button>
+          <button
+            class="flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md bg-n-alpha-2 text-n-slate-11 hover:bg-n-ruby-3 hover:text-n-ruby-11 transition-colors"
+            :title="$t('CONVERSATION.MERGE_CONVERSATION.TITLE')"
+            @click.stop="onMergeClick(conversation)"
+          >
+            <span class="i-lucide-git-merge w-3 h-3" />
+            {{ $t('CONVERSATION.MERGE_CONVERSATION.BUTTON_LABEL') }}
+          </button>
+        </div>
       </div>
     </div>
     <ContextMenu
