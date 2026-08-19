@@ -1,14 +1,11 @@
 shared: &shared
-  version: '4.15.1+uceasy.7'
+  version: '4.16.2+uceasy.1'
 
 development:
   <<: *shared
 
-production:
-  <<: *shared
-
-staging:
-  <<: *shared
-
 test:
+  <<: *shared
+
+production:
   <<: *shared
